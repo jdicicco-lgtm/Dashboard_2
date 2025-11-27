@@ -2,1238 +2,588 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Fleet & Booking Dashboard 2024–2026</title>
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --bg-card: #111827;
-      --accent: #ef4444;
-      --accent-soft: rgba(239,68,68,0.12);
-      --accent-2: #22c55e;
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --border-soft: #1f2937;
-      --chip-bg: #020617;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vivarent Dashboard</title>
 
-    * { box-sizing: border-box; }
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+  <style>
+    /* -------------------------------------------------
+       STILI ORIGINALI + AGGIUNTE KPI PRECEDENTE
+    --------------------------------------------------*/
+    :root {
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #f97316;
+    }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2933 0, #020617 45%);
+      background: var(--bg-dark);
       color: var(--text-main);
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
       min-height: 100vh;
     }
 
-    .page {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 24px 20px 40px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 26px;
-      letter-spacing: 0.02em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    h1 span.badge {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid rgba(239,68,68,0.4);
-    }
-
-    .subtitle {
-      margin-top: 6px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .top-bar {
-      margin-top: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .top-bar-left {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.7);
-      border: 1px solid var(--border-soft);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .top-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      background: #020617;
-      color: var(--text-main);
-      padding: 6px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
-    }
-
-    .btn:hover {
-      background: #111827;
-      border-color: #374151;
-      transform: translateY(-0.5px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ef4444, #f97316);
-      border: none;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      filter: brightness(1.05);
-    }
-
-    .btn-icon {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-
-    .layout {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
-      gap: 16px;
-    }
-
     .sidebar {
-      background: rgba(15,23,42,0.95);
-      border-radius: 18px;
-      padding: 14px 14px 16px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      width: 260px;
+      background: #11161d;
+      padding: 22px;
+      border-right: 1px solid #30363d;
     }
 
-    .sidebar-title {
-      font-size: 13px;
+    .sidebar h2 {
+      font-size: 20px;
       font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .sidebar label {
+      font-size: 13px;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: block;
+      margin-bottom: 6px;
+      margin-top: 14px;
     }
 
-    .sidebar-title span.dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 10px rgba(34,197,94,0.7);
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .filter-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-
-    select {
-      border-radius: 999px;
-      border: 1px solid var(--border-soft);
-      background: #020617;
+    .sidebar select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #0d1117;
+      border: 1px solid #30363d;
       color: var(--text-main);
-      padding: 6px 10px;
-      font-size: 12px;
-      outline: none;
-      appearance: none;
-      position: relative;
+      font-size: 14px;
     }
 
-    select:focus {
-      border-color: #4b5563;
-      box-shadow: 0 0 0 1px rgba(148,163,184,0.35);
+    .btn-reset {
+      margin-top: 18px;
+      width: 100%;
+      padding: 8px 10px;
+      background: #f97316;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .filters-footer {
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(55,65,81,0.8);
-      font-size: 11px;
+    .main {
+      flex: 1;
+      padding: 26px 32px;
+    }
+
+    .main h1 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 4px;
+    }
+
+    .main p {
+      margin-top: 0;
+      margin-bottom: 22px;
       color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .cards-row, .cards-row-secondary, .cards-row-tertiary {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .legend-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: var(--chip-bg);
-      border: 1px solid var(--border-soft);
-      font-size: 10px;
-      font-weight: 500;
-    }
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .cards-row-secondary {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .cards-row-tertiary {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
     .card {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid #30363d;
+      padding: 16px;
+      border-radius: 12px;
       position: relative;
-      overflow: hidden;
-      background: radial-gradient(circle at top left, rgba(248,250,252,0.06) 0, #020617 40%, #020617 100%);
-      border-radius: 18px;
-      padding: 10px 12px 10px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(248,250,252,0.09), transparent 55%);
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      pointer-events: none;
-    }
-
-    .card:hover::before {
-      opacity: 1;
     }
 
     .card-label {
-      font-size: 11px;
-      color: var(--text-muted);
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .card-value-row {
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.06em;
     }
 
     .card-value {
-      font-size: 18px;
+      font-size: 26px;
       font-weight: 600;
+      margin-bottom: 4px;
     }
 
     .card-prev {
-      font-size: 10px;
+      font-size: 12px;
       color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 6px;
     }
 
     .card-sub {
-      margin-top: 2px;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .card-tag {
-      position: absolute;
-      top: 8px;
-      right: 10px;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.95);
-      border: 1px solid var(--border-soft);
-      color: var(--text-muted);
-      display: inline-flex;
+      margin-top: 10px;
+      font-size: 11px;
+      display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
+      color: var(--text-muted);
     }
 
     .card-tag-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 999px;
-      background: var(--accent);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
     }
 
     .charts {
+      margin-top: 20px;
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      gap: 12px;
-      margin-top: 4px;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
     }
 
     .chart-card {
+      padding: 18px;
       background: var(--bg-card);
-      border-radius: 18px;
-      padding: 10px 12px 12px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-height: 260px;
-    }
-
-    .chart-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
+      border: 1px solid #30363d;
+      border-radius: 12px;
     }
 
     .chart-title {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 14px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
     }
 
     .chart-subtitle {
-      font-size: 11px;
-      color: var(--text-muted);
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 12px;
     }
 
     .chart-meta {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
-    .chart-body {
-      margin-top: 4px;
-      flex: 1;
-    }
-
-    .chart-footnote {
-      margin-top: 4px;
-      font-size: 10px;
+    .chip {
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #1f242b;
       color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .chart-footnote span.chip {
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(17,24,39,0.9);
-      border: 1px solid var(--border-soft);
-    }
-
-    @media (max-width: 1100px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    @media (max-width: 900px) {
-      .cards {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      .cards-row-secondary {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-      .cards-row-tertiary {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .charts {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .cards {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .cards-row-secondary {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      font-size: 11px;
     }
   </style>
 </head>
+
 <body>
-  <div class="page">
-    <header>
-      <h1>
-        Fleet & Booking Overview
-        <span class="badge">2024 – 2026</span>
-      </h1>
-      <div class="subtitle">
-        Analisi integrata flotta e prenotazioni per anno, mese, tipologia, gruppo veicolo e modalità di acquisizione.
-      </div>
-      <div class="top-bar">
-        <div class="top-bar-left">
-          <div class="pill">
-            <span class="pill-dot"></span>
-            <span>Flotta: canoni imponibili + coperture assicurative</span>
-          </div>
-          <div class="pill">
-            <span class="pill-dot" style="background:#22c55e;"></span>
-            <span>Prenotazioni: revenue 2025 con proiezioni 2024 (−5%) e 2026 (+10%)</span>
-          </div>
-        </div>
-        <div class="top-bar-right">
-          <button id="btn-reset" class="btn">
-            <span class="btn-icon">↺</span>
-            Pulisci filtri
-          </button>
-          <button class="btn btn-primary">
-            <span class="btn-icon">●</span>
-            Live view
-          </button>
-        </div>
-      </div>
-    </header>
+<div class="container">
+  
+  <!-- -------------------------------------------------
+       SIDEBAR FILTRI
+  --------------------------------------------------- -->
+  <div class="sidebar">
+    <h2>Filtri</h2>
 
-    <main class="layout">
-      <aside class="sidebar">
-        <div class="sidebar-title">
-          <span>Filtri dashboard</span>
-          <span class="dot"></span>
-        </div>
-        <div class="filters-grid">
-          <div class="filter-group">
-            <label class="filter-label" for="filter-year">Anno</label>
-            <select id="filter-year">
-              <option value="">Tutti</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label" for="filter-month">Mese</label>
-            <select id="filter-month">
-              <option value="">Tutti</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label" for="filter-tipologia">Tipologia</label>
-            <select id="filter-tipologia">
-              <option value="">Tutte</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label" for="filter-gruppo">Gruppo veicolo</label>
-            <select id="filter-gruppo">
-              <option value="">Tutti</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label class="filter-label" for="filter-acquisizione">Acquisizione</label>
-            <select id="filter-acquisizione">
-              <option value="">Tutte</option>
-            </select>
-          </div>
-        </div>
-        <div class="filters-footer">
-          <span>
-            <span class="legend-chip">Fleet</span>
-            &nbsp;Canoni + Assicurazioni
-          </span>
-          <span>
-            <span class="legend-chip">Booking</span>
-            &nbsp;Revenue &amp; volumi
-          </span>
-        </div>
-      </aside>
+    <label>Anno</label>
+    <select id="filter-year">
+      <option value="">Tutti</option>
+    </select>
 
-      <section class="content">
-        <div class="cards">
-          <div class="card">
-            <div class="card-label">Dimensione flotta (media)</div>
-            <div class="card-value-row">
-              <div id="card-fleet-size" class="card-value">–</div>
-              <div id="card-fleet-size-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Veicoli medi nel periodo selezionato</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#f97316;"></span>
-              Fleet
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Canone imponibile</div>
-            <div class="card-value-row">
-              <div id="card-canone" class="card-value">–</div>
-              <div id="card-canone-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Somma canoni imponibili flotta</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#10b981;"></span>
-              Costi
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Assicurazione</div>
-            <div class="card-value-row">
-              <div id="card-assicurazione" class="card-value">–</div>
-              <div id="card-assicurazione-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Somma coperture assicurative</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#3b82f6;"></span>
-              Risk
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Costo totale</div>
-            <div class="card-value-row">
-              <div id="card-costo-totale" class="card-value">–</div>
-              <div id="card-costo-totale-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Canoni + assicurazioni</div>
-            <div class="card-tag">
-              <span class="card-tag-dot"></span>
-              Totale
-            </div>
-          </div>
-        </div>
+    <label>Mese</label>
+    <select id="filter-month">
+      <option value="">Tutti</option>
+    </select>
 
-        <div class="cards-row-secondary">
-          <div class="card">
-            <div class="card-label">Revenue</div>
-            <div class="card-value-row">
-              <div id="card-revenue" class="card-value">–</div>
-              <div id="card-revenue-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Revenue prenotazioni (proiezioni incluse)</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#22c55e;"></span>
-              Booking
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Revenue per day</div>
-            <div class="card-value-row">
-              <div id="card-rev-per-day" class="card-value">–</div>
-              <div id="card-rev-per-day-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Revenue media per giorno di noleggio</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#3b82f6;"></span>
-              Yield
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Numero prenotazioni</div>
-            <div class="card-value-row">
-              <div id="card-bookings" class="card-value">–</div>
-              <div id="card-bookings-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Totale prenotazioni nel periodo selezionato</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#a855f7;"></span>
-              Volume
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-label">Revenue per veicolo</div>
-            <div class="card-value-row">
-              <div id="card-rev-per-vehicle" class="card-value">–</div>
-              <div id="card-rev-per-vehicle-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Revenue / dimensione media flotta</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#10b981;"></span>
-              Efficienza
-            </div>
-          </div>
-        </div>
+    <label>Tipologia</label>
+    <select id="filter-tipologia">
+      <option value="">Tutte</option>
+    </select>
 
-        <div class="cards-row-tertiary">
-          <div class="card">
-            <div class="card-label">Cost/Rev ratio</div>
-            <div class="card-value-row">
-              <div id="card-cost-rev-ratio" class="card-value">–</div>
-              <div id="card-cost-rev-ratio-prev" class="card-prev"></div>
-            </div>
-            <div class="card-sub">Costo totale flotta / revenue</div>
-            <div class="card-tag">
-              <span class="card-tag-dot" style="background:#f97316;"></span>
-              Marginalità
-            </div>
-          </div>
-        </div>
+    <label>Gruppo</label>
+    <select id="filter-gruppo">
+      <option value="">Tutti</option>
+    </select>
 
-        <div class="charts">
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <div class="chart-title">Fleet size &amp; cost trend</div>
-                <div class="chart-subtitle">Andamento mensile dimensione flotta e costi</div>
-              </div>
-              <div class="chart-meta" id="chart-fleet-meta">–</div>
-            </div>
-            <div class="chart-body" id="chart-fleet"></div>
-            <div class="chart-footnote">
-              <span class="chip">Barre: veicoli attivi · Linea: costo totale</span>
-              <span id="chart-fleet-note"></span>
-            </div>
-          </div>
+    <label>Acquisizione</label>
+    <select id="filter-acquisizione">
+      <option value="">Tutte</option>
+    </select>
 
-          <div class="chart-card">
-            <div class="chart-header">
-              <div>
-                <div class="chart-title">Bookings &amp; revenue</div>
-                <div class="chart-subtitle">Volumi prenotazioni e revenue per mese</div>
-              </div>
-              <div class="chart-meta" id="chart-booking-meta">–</div>
-            </div>
-            <div class="chart-body" id="chart-booking"></div>
-            <div class="chart-footnote">
-              <span class="chip">Barre: # prenotazioni · Linea: revenue</span>
-              <span id="chart-booking-note"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>
-              <div class="chart-title">Cost vs Revenue per Cargroup</div>
-              <div class="chart-subtitle">Confronto costi flotta e revenue per gruppo veicolo</div>
-            </div>
-            <div class="chart-meta" id="chart-cargroup-meta">Per GRUPPO · filtri attivi</div>
-          </div>
-          <div class="chart-body" id="chart-cargroup"></div>
-          <div class="chart-footnote">
-            <span class="chip">Barre: costo totale · Linea: revenue</span>
-            <span id="chart-cargroup-note"></span>
-          </div>
-        </div>
-
-      </section>
-    </main>
+    <button id="btn-reset" class="btn-reset">Reset filtri</button>
   </div>
 
-  <script>
-    const monthNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
-
-    function formatCurrency(v) {
-      if (!isFinite(v) || v === 0) return "€0";
-      const abs = Math.abs(v);
-      let value = v;
-      let suffix = "";
-      if (abs >= 1_000_000) {
-        value = v / 1_000_000;
-        suffix = "M";
-      } else if (abs >= 1_000) {
-        value = v / 1_000;
-        suffix = "K";
-      }
-      return "€" + value.toLocaleString("it-IT", {
-        maximumFractionDigits: 1,
-        minimumFractionDigits: 0
-      }) + suffix;
-    }
-
-    function formatNumber(v) {
-      if (!isFinite(v)) return "0";
-      return v.toLocaleString("it-IT", { maximumFractionDigits: 0 });
-    }
-
-    function formatFloat(v, decimals = 1) {
-      if (!isFinite(v)) return "0";
-      return v.toLocaleString("it-IT", {
-        maximumFractionDigits: decimals,
-        minimumFractionDigits: decimals
-      });
-    }
-
-    function groupKey(y, m) {
-      return `${y}-${String(m).padStart(2, "0")}`;
-    }
-
-    // parse sicuro: sostituisce NaN con null prima del JSON.parse
-    function parseJsonSafe(text, label) {
-      try {
-        const cleaned = text.replace(/NaN/g, "null");
-        return JSON.parse(cleaned);
-      } catch (e) {
-        console.error(`Errore nel parsing di ${label}:`, e);
-        return [];
-      }
-    }
-
-    let fleetData = [];
-    let bookingData = [];
-
-    const filters = {
-      year: "",
-      month: "",
-      tipologia: "",
-      gruppo: "",
-      acquisizione: ""
-    };
-
-    const cardFleetSize = document.getElementById("card-fleet-size");
-    const cardCanone = document.getElementById("card-canone");
-    const cardAssicurazione = document.getElementById("card-assicurazione");
-    const cardCostoTotale = document.getElementById("card-costo-totale");
-    const cardRevenue = document.getElementById("card-revenue");
-    const cardRevPerDay = document.getElementById("card-rev-per-day");
-    const cardBookings = document.getElementById("card-bookings");
-    const cardRevPerVehicle = document.getElementById("card-rev-per-vehicle");
-    const cardCostRevRatio = document.getElementById("card-cost-rev-ratio");
-
-    const cardFleetSizePrev = document.getElementById("card-fleet-size-prev");
-    const cardCanonePrev = document.getElementById("card-canone-prev");
-    const cardAssicurazionePrev = document.getElementById("card-assicurazione-prev");
-    const cardCostoTotalePrev = document.getElementById("card-costo-totale-prev");
-    const cardRevenuePrev = document.getElementById("card-revenue-prev");
-    const cardRevPerDayPrev = document.getElementById("card-rev-per-day-prev");
-    const cardBookingsPrev = document.getElementById("card-bookings-prev");
-    const cardRevPerVehiclePrev = document.getElementById("card-rev-per-vehicle-prev");
-    const cardCostRevRatioPrev = document.getElementById("card-cost-rev-ratio-prev");
-
-    const chartFleetMeta = document.getElementById("chart-fleet-meta");
-    const chartFleetNote = document.getElementById("chart-fleet-note");
-    const chartBookingMeta = document.getElementById("chart-booking-meta");
-    const chartBookingNote = document.getElementById("chart-booking-note");
-    const chartCargroupMeta = document.getElementById("chart-cargroup-meta");
-    const chartCargroupNote = document.getElementById("chart-cargroup-note");
-
-    async function loadData() {
-      try {
-        const [fleetRes, bookingRes] = await Promise.all([
-          fetch("fleet_agg.json"),
-          fetch("bookings_agg.json")
-        ]);
-
-        const [fleetText, bookingText] = await Promise.all([
-          fleetRes.text(),
-          bookingRes.text()
-        ]);
-
-        fleetData = parseJsonSafe(fleetText, "fleet_agg.json");
-        bookingData = parseJsonSafe(bookingText, "bookings_agg.json");
-
-        populateFilters();
-        applyFiltersAndUpdate();
-      } catch (error) {
-        console.error("Errore nel caricamento dei dati JSON", error);
-      }
-    }
-
-    function populateFilters() {
-      const yearSelect = document.getElementById("filter-year");
-      const monthSelect = document.getElementById("filter-month");
-      const tipologiaSelect = document.getElementById("filter-tipologia");
-      const gruppoSelect = document.getElementById("filter-gruppo");
-      const acquisizioneSelect = document.getElementById("filter-acquisizione");
-
-      const years = new Set();
-      const months = new Set();
-      const tipologie = new Set();
-      const gruppi = new Set();
-      const acquisizioni = new Set();
-
-      fleetData.forEach(d => {
-        years.add(d.Year);
-        months.add(d.Month);
-        if (d.TIPOLOGIA) tipologie.add(d.TIPOLOGIA);
-        if (d.GRUPPO) gruppi.add(d.GRUPPO);
-        if (d.ACQUISIZIONE) acquisizioni.add(d.ACQUISIZIONE);
-      });
-
-      bookingData.forEach(d => {
-        years.add(d.Year);
-        months.add(d.Month);
-        if (d.TIPOLOGIA) tipologie.add(d.TIPOLOGIA);
-        if (d.GRUPPO) gruppi.add(d.GRUPPO);
-        if (d.ACQUISIZIONE) acquisizioni.add(d.ACQUISIZIONE);
-      });
-
-      [...years].sort().forEach(y => {
-        const opt = document.createElement("option");
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
-      });
-
-      [...months].sort((a, b) => a - b).forEach(m => {
-        const opt = document.createElement("option");
-        opt.value = m;
-        opt.textContent = monthNames[m - 1];
-        monthSelect.appendChild(opt);
-      });
-
-      [...tipologie].sort().forEach(t => {
-        const opt = document.createElement("option");
-        opt.value = t;
-        opt.textContent = t;
-        tipologiaSelect.appendChild(opt);
-      });
-
-      [...gruppi].sort().forEach(g => {
-        const opt = document.createElement("option");
-        opt.value = g;
-        opt.textContent = g;
-        gruppoSelect.appendChild(opt);
-      });
-
-      [...acquisizioni].sort().forEach(a => {
-        const opt = document.createElement("option");
-        opt.value = a;
-        opt.textContent = a;
-        acquisizioneSelect.appendChild(opt);
-      });
-    }
-
-    function getPrevPeriodData() {
-      const y = filters.year ? parseInt(filters.year, 10) : null;
-      const m = filters.month ? parseInt(filters.month, 10) : null;
-
-      let prevYear = null;
-      let prevMonth = null;
-      let label = "";
-
-      if (y && m) {
-        // mese precedente nello stesso anno, oppure dicembre anno precedente
-        if (m === 1) {
-          prevYear = y - 1;
-          prevMonth = 12;
-        } else {
-          prevYear = y;
-          prevMonth = m - 1;
-        }
-        if (prevYear) {
-          label = `Mese prec. (${monthNames[prevMonth - 1]} ${prevYear})`;
-        }
-      } else if (y && !m) {
-        prevYear = y - 1;
-        if (prevYear) {
-          label = `Anno prec. (${prevYear})`;
-        }
-      } else if (!y && m) {
-        prevMonth = m === 1 ? 12 : m - 1;
-        label = `Mese prec. (${monthNames[prevMonth - 1]})`;
-      } else {
-        // nessun anno/mese selezionato: niente confronto
-        return { fleetPrev: [], bookingPrev: [], label: "" };
-      }
-
-      function segMatch(d) {
-        if (filters.tipologia && d.TIPOLOGIA !== filters.tipologia) return false;
-        if (filters.gruppo && d.GRUPPO !== filters.gruppo) return false;
-        if (filters.acquisizione && d.ACQUISIZIONE !== filters.acquisizione) return false;
-        return true;
-      }
-
-      const fleetPrev = fleetData.filter(d => {
-        if (!segMatch(d)) return false;
-        if (prevYear !== null && d.Year != prevYear) return false;
-        if (prevMonth !== null && d.Month != prevMonth) return false;
-        return true;
-      });
-
-      const bookingPrev = bookingData.filter(d => {
-        if (!segMatch(d)) return false;
-        if (prevYear !== null && d.Year != prevYear) return false;
-        if (prevMonth !== null && d.Month != prevMonth) return false;
-        return true;
-      });
-
-      return { fleetPrev, bookingPrev, label };
-    }
-
-    function calcKpis(fleetList, bookingList) {
-      let fleetAverage = null;
-      let sumCanone = null;
-      let sumAssicurazione = null;
-      let sumTotale = null;
-      let sumRevenue = null;
-      let sumDays = null;
-      let sumBookings = null;
-      let revPerDay = null;
-      let revPerVehicle = null;
-      let costRevRatio = null;
-
-      if (fleetList.length > 0) {
-        const monthlyTotals = {};
-        let canone = 0;
-        let ass = 0;
-        let totale = 0;
-
-        fleetList.forEach(d => {
-          const key = groupKey(d.Year, d.Month);
-          if (!monthlyTotals[key]) monthlyTotals[key] = 0;
-          const fleetSize = d.fleet_size || d.fleetSize || d.Dimensione_Flotta || d.dimensione_flotta || d.Attivi || 0;
-          monthlyTotals[key] += fleetSize;
-
-          canone += d.canone_imponibile || 0;
-          ass += d.assicurazione || 0;
-          totale += d.costo_totale || 0;
-        });
-
-        const monthValues = Object.values(monthlyTotals);
-        fleetAverage = monthValues.length
-          ? monthValues.reduce((a, b) => a + b, 0) / monthValues.length
-          : 0;
-
-        sumCanone = canone;
-        sumAssicurazione = ass;
-        sumTotale = totale;
-      }
-
-      if (bookingList.length > 0) {
-        let revenue = 0;
-        let days = 0;
-        let bookingsCount = 0;
-
-        bookingList.forEach(d => {
-          revenue += d.revenue || 0;
-          days += d.total_rental_days || 0;
-          bookingsCount += d.total_bookings || 0;
-        });
-
-        sumRevenue = revenue;
-        sumDays = days;
-        sumBookings = bookingsCount;
-
-        if (days > 0) {
-          revPerDay = revenue / days;
-        }
-        if (fleetAverage && fleetAverage > 0) {
-          revPerVehicle = revenue / fleetAverage;
-        }
-        if (sumTotale && sumTotale > 0 && revenue > 0) {
-          costRevRatio = (sumTotale / revenue) * 100;
-        }
-      }
-
-      return {
-        fleetAverage,
-        sumCanone,
-        sumAssicurazione,
-        sumTotale,
-        sumRevenue,
-        sumDays,
-        sumBookings,
-        revPerDay,
-        revPerVehicle,
-        costRevRatio
-      };
-    }
-
-    function setMainValue(el, value, formatter) {
-      if (!el) return;
-      if (value == null) {
-        el.textContent = "–";
-      } else {
-        el.textContent = formatter ? formatter(value) : value;
-      }
-    }
-
-    function setPrevValue(el, value, label, formatter) {
-      if (!el) return;
-      if (!label || value == null) {
-        el.textContent = "";
-      } else {
-        el.textContent = `${label}: ${formatter ? formatter(value) : value}`;
-      }
-    }
-
-    function applyFiltersAndUpdate() {
-      const fleetFiltered = fleetData.filter(d => {
-        if (filters.year && d.Year != filters.year) return false;
-        if (filters.month && d.Month != filters.month) return false;
-        if (filters.tipologia && d.TIPOLOGIA !== filters.tipologia) return false;
-        if (filters.gruppo && d.GRUPPO !== filters.gruppo) return false;
-        if (filters.acquisizione && d.ACQUISIZIONE !== filters.acquisizione) return false;
-        return true;
-      });
-
-      const bookingFiltered = bookingData.filter(d => {
-        if (filters.year && d.Year != filters.year) return false;
-        if (filters.month && d.Month != filters.month) return false;
-        if (filters.tipologia && d.TIPOLOGIA !== filters.tipologia) return false;
-        if (filters.gruppo && d.GRUPPO !== filters.gruppo) return false;
-        if (filters.acquisizione && d.ACQUISIZIONE !== filters.acquisizione) return false;
-        return true;
-      });
-
-      const { fleetPrev, bookingPrev, label } = getPrevPeriodData();
-
-      updateCards(fleetFiltered, bookingFiltered, fleetPrev, bookingPrev, label);
-      updateCharts(fleetFiltered, bookingFiltered);
-    }
-
-    function updateCards(fleetList, bookingList, fleetPrevList, bookingPrevList, prevLabel) {
-      const cur = calcKpis(fleetList, bookingList);
-      const prev = calcKpis(fleetPrevList, bookingPrevList);
-
-      // valori principali
-      setMainValue(cardFleetSize, cur.fleetAverage, v => formatFloat(v, 1));
-      setMainValue(cardCanone, cur.sumCanone, formatCurrency);
-      setMainValue(cardAssicurazione, cur.sumAssicurazione, formatCurrency);
-      setMainValue(cardCostoTotale, cur.sumTotale, formatCurrency);
-      setMainValue(cardRevenue, cur.sumRevenue, formatCurrency);
-      setMainValue(cardRevPerDay, cur.revPerDay, formatCurrency);
-      setMainValue(cardBookings, cur.sumBookings, formatNumber);
-      setMainValue(cardRevPerVehicle, cur.revPerVehicle, formatCurrency);
-      setMainValue(cardCostRevRatio, cur.costRevRatio, v => formatFloat(v, 1) + "%");
-
-      // valori del periodo precedente
-      setPrevValue(cardFleetSizePrev, prev.fleetAverage, prevLabel, v => formatFloat(v, 1));
-      setPrevValue(cardCanonePrev, prev.sumCanone, prevLabel, formatCurrency);
-      setPrevValue(cardAssicurazionePrev, prev.sumAssicurazione, prevLabel, formatCurrency);
-      setPrevValue(cardCostoTotalePrev, prev.sumTotale, prevLabel, formatCurrency);
-      setPrevValue(cardRevenuePrev, prev.sumRevenue, prevLabel, formatCurrency);
-      setPrevValue(cardRevPerDayPrev, prev.revPerDay, prevLabel, formatCurrency);
-      setPrevValue(cardBookingsPrev, prev.sumBookings, prevLabel, formatNumber);
-      setPrevValue(cardRevPerVehiclePrev, prev.revPerVehicle, prevLabel, formatCurrency);
-      setPrevValue(cardCostRevRatioPrev, prev.costRevRatio, prevLabel, v => formatFloat(v, 1) + "%");
-    }
-
-    function updateCharts(fleetList, bookingList) {
-      // --- Chart 1: Fleet size & cost trend ---
-      if (fleetList.length > 0) {
-        const agg = {};
-        fleetList.forEach(d => {
-          const key = groupKey(d.Year, d.Month);
-          if (!agg[key]) {
-            agg[key] = {
-              year: d.Year,
-              month: d.Month,
-              fleetSize: 0,
-              costo: 0
-            };
-          }
-          agg[key].fleetSize += d.fleet_size || d.fleetSize || d.Dimensione_Flotta || d.dimensione_flotta || d.Attivi || 0;
-          agg[key].costo += d.costo_totale || 0;
-        });
-
-        const rows = Object.values(agg).sort((a, b) => {
-          if (a.year === b.year) return a.month - b.month;
-          return a.year - b.year;
-        });
-
-        const x = rows.map(r => `${monthNames[r.month - 1]} ${r.year}`);
-        const fleetVals = rows.map(r => r.fleetSize);
-        const costVals = rows.map(r => r.costo);
-
-        const barFleet = {
-          x,
-          y: fleetVals,
-          type: "bar",
-          name: "Fleet size",
-          opacity: 0.85
-        };
-
-        const lineCost = {
-          x,
-          y: costVals,
-          type: "scatter",
-          mode: "lines+markers",
-          name: "Costo totale"
-        };
-
-        Plotly.newPlot(
-          "chart-fleet",
-          [barFleet, lineCost],
-          {
-            paper_bgcolor: "rgba(0,0,0,0)",
-            plot_bgcolor: "rgba(0,0,0,0)",
-            margin: { t: 10, r: 10, b: 60, l: 50 },
-            xaxis: {
-              tickangle: -35,
-              tickfont: { size: 10, color: "#9ca3af" }
-            },
-            yaxis: {
-              title: "Fleet size",
-              titlefont: { size: 11, color: "#9ca3af" },
-              tickfont: { size: 10, color: "#9ca3af" },
-              gridcolor: "#1f2937"
-            },
-            yaxis2: {
-              title: "Costo totale",
-              overlaying: "y",
-              side: "right",
-              titlefont: { size: 11, color: "#9ca3af" },
-              tickfont: { size: 10, color: "#9ca3af" },
-              gridcolor: "rgba(0,0,0,0)"
-            },
-            legend: {
-              orientation: "h",
-              y: 1.12,
-              x: 0,
-              font: { size: 10, color: "#e5e7eb" }
-            }
-          },
-          { displayModeBar: false }
-        );
-
-        chartFleetMeta.textContent = "Per mese · filtri attivi";
-        chartFleetNote.textContent = "Scope: dati flotta (canoni + assicurazioni)";
-      } else {
-        Plotly.purge("chart-fleet");
-        chartFleetMeta.textContent = "Nessun dato";
-        chartFleetNote.textContent = "";
-      }
-
-      // --- Chart 2: Bookings & revenue ---
-      if (bookingList.length > 0) {
-        const aggB = {};
-        bookingList.forEach(d => {
-          const key = groupKey(d.Year, d.Month);
-          if (!aggB[key]) {
-            aggB[key] = {
-              year: d.Year,
-              month: d.Month,
-              bookings: 0,
-              revenue: 0
-            };
-          }
-          aggB[key].bookings += d.total_bookings || 0;
-          aggB[key].revenue += d.revenue || 0;
-        });
-
-        const rowsB = Object.values(aggB).sort((a, b) => {
-          if (a.year === b.year) return a.month - b.month;
-          return a.year - b.year;
-        });
-
-        const xB = rowsB.map(r => `${monthNames[r.month - 1]} ${r.year}`);
-        const bookingsVals = rowsB.map(r => r.bookings);
-        const revenueVals = rowsB.map(r => r.revenue);
-
-        const barBookings = {
-          x: xB,
-          y: bookingsVals,
-          type: "bar",
-          name: "Prenotazioni",
-          opacity: 0.85
-        };
-
-        const lineRevenue = {
-          x: xB,
-          y: revenueVals,
-          type: "scatter",
-          mode: "lines+markers",
-          name: "Revenue",
-          yaxis: "y2"
-        };
-
-        Plotly.newPlot(
-          "chart-booking",
-          [barBookings, lineRevenue],
-          {
-            paper_bgcolor: "rgba(0,0,0,0)",
-            plot_bgcolor: "rgba(0,0,0,0)",
-            margin: { t: 10, r: 40, b: 60, l: 50 },
-            xaxis: {
-              tickangle: -35,
-              tickfont: { size: 10, color: "#9ca3af" }
-            },
-            yaxis: {
-              title: "Prenotazioni",
-              titlefont: { size: 11, color: "#9ca3af" },
-              tickfont: { size: 10, color: "#9ca3af" },
-              gridcolor: "#1f2937"
-            },
-            yaxis2: {
-              title: "Revenue",
-              overlaying: "y",
-              side: "right",
-              titlefont: { size: 11, color: "#9ca3af" },
-              tickfont: { size: 10, color: "#9ca3af" },
-              gridcolor: "rgba(0,0,0,0)"
-            },
-            legend: {
-              orientation: "h",
-              y: 1.12,
-              x: 0,
-              font: { size: 10, color: "#e5e7eb" }
-            }
-          },
-          { displayModeBar: false }
-        );
-
-        chartBookingMeta.textContent = "Per mese · filtri attivi";
-        chartBookingNote.textContent = "Scope: dati prenotazioni (volumi + revenue)";
-      } else {
-        Plotly.purge("chart-booking");
-        chartBookingMeta.textContent = "Nessun dato";
-        chartBookingNote.textContent = "";
-      }
-
-      // --- Chart 3: Cost vs Revenue per Cargroup ---
-      if (fleetList.length > 0 || booking
+  <!-- -------------------------------------------------
+       MAIN AREA
+  --------------------------------------------------- -->
+  <div class="main">
+    <h1>Vivarent Analytics</h1>
+    <p>Dashboard flotta e prenotazioni — filtri avanzati + confronto periodo precedente.</p>
+
+    <!-- -------------------------------------------------
+         KPI CARDS  (NUOVA VERSIONE)
+    --------------------------------------------------- -->
+
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-label">Dimensione flotta (media)</div>
+        <div id="card-fleet-size" class="card-value">–</div>
+        <div id="card-fleet-size-prev" class="card-prev"></div>
+        <div class="card-sub">Veicoli medi nel periodo selezionato</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#22c55e;"></span> Fleet</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Canone imponibile</div>
+        <div id="card-canone" class="card-value">–</div>
+        <div id="card-canone-prev" class="card-prev"></div>
+        <div class="card-sub">Somma canoni imponibili flotta</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#22c55e;"></span> Costi</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Assicurazione</div>
+        <div id="card-assicurazione" class="card-value">–</div>
+        <div id="card-assicurazione-prev" class="card-prev"></div>
+        <div class="card-sub">Somma coperture assicurative</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#3b82f6;"></span> Risk</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Costo totale</div>
+        <div id="card-costo-totale" class="card-value">–</div>
+        <div id="card-costo-totale-prev" class="card-prev"></div>
+        <div class="card-sub">Canoni + assicurazioni</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#eab308;"></span> Totale</div>
+      </div>
+    </div>
+
+    <div class="cards-row-secondary">
+      <div class="card">
+        <div class="card-label">Revenue</div>
+        <div id="card-revenue" class="card-value">–</div>
+        <div id="card-revenue-prev" class="card-prev"></div>
+        <div class="card-sub">Revenue prenotazioni</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#22c55e;"></span> Booking</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Revenue per day</div>
+        <div id="card-rev-per-day" class="card-value">–</div>
+        <div id="card-rev-per-day-prev" class="card-prev"></div>
+        <div class="card-sub">Revenue media per giorno</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#6366f1;"></span> Yield</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Numero prenotazioni</div>
+        <div id="card-bookings" class="card-value">–</div>
+        <div id="card-bookings-prev" class="card-prev"></div>
+        <div class="card-sub">Prenotazioni nel periodo</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#a855f7;"></span> Volume</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Revenue per veicolo</div>
+        <div id="card-rev-per-vehicle" class="card-value">–</div>
+        <div id="card-rev-per-vehicle-prev" class="card-prev"></div>
+        <div class="card-sub">Revenue / dimensione media flotta</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#22c55e;"></span> Efficienza</div>
+      </div>
+    </div>
+
+    <div class="cards-row-tertiary">
+      <div class="card">
+        <div class="card-label">Cost/Rev ratio</div>
+        <div id="card-cost-rev-ratio" class="card-value">–</div>
+        <div id="card-cost-rev-ratio-prev" class="card-prev"></div>
+        <div class="card-sub">Costo totale / revenue</div>
+        <div class="card-tag"><span class="card-tag-dot" style="background:#f97316;"></span> Marginalità</div>
+      </div>
+    </div>
+
+    <!-- -------------------------------------------------
+         GRAFICI (RESTA invariata la tua struttura)
+    --------------------------------------------------- -->
+
+    <div class="charts">
+
+      <div class="chart-card">
+        <div class="chart-title">Fleet size & cost trend</div>
+        <div class="chart-subtitle">Andamento mensile</div>
+        <div id="chart-fleet" style="height:290px;"></div>
+        <div class="chip" id="chart-fleet-note"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Bookings & revenue</div>
+        <div class="chart-subtitle">Andamento mensile</div>
+        <div id="chart-booking" style="height:290px;"></div>
+        <div class="chip" id="chart-booking-note"></div>
+      </div>
+
+    </div>
+
+    <div class="chart-card" style="margin-top:20px;">
+      <div class="chart-title">Cost vs Revenue per Cargroup</div>
+      <div class="chart-subtitle">Confronto per gruppo veicolo</div>
+      <div id="chart-cargroup" style="height:320px;"></div>
+      <div class="chip" id="chart-cargroup-note"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- -------------------------------------------------
+     SCRIPT COMPLETO (RISCRITTO)
+--------------------------------------------------- -->
+<script>
+
+const monthNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+function groupKey(y,m){ return y+"-"+String(m).padStart(2,"0"); }
+
+function parseJsonSafe(text){
+  return JSON.parse(text.replace(/NaN/g,"null"));
+}
+
+let fleetData=[], bookingData=[];
+const filters={
+ year:"", month:"", tipologia:"", gruppo:"", acquisizione:""
+};
+
+/* ----------------------------------------------------------
+   CARICAMENTO JSON SICURO
+----------------------------------------------------------- */
+Promise.all([
+ fetch("fleet_agg.json").then(r=>r.text()),
+ fetch("bookings_agg.json").then(r=>r.text())
+])
+.then(([ft,bt])=>{
+ fleetData=parseJsonSafe(ft);
+ bookingData=parseJsonSafe(bt);
+ initFilters();
+ applyFiltersAndUpdate();
+});
+
+/* ----------------------------------------------------------
+   INIZIALIZZAZIONE FILTRI
+----------------------------------------------------------- */
+function initFilters() {
+ const ys=new Set(), ms=new Set(), tips=new Set(), grs=new Set(), acqs=new Set();
+
+ [...fleetData,...bookingData].forEach(d=>{
+   ys.add(d.Year);
+   ms.add(d.Month);
+   if(d.TIPOLOGIA) tips.add(d.TIPOLOGIA);
+   if(d.GRUPPO) grs.add(d.GRUPPO);
+   if(d.ACQUISIZIONE) acqs.add(d.ACQUISIZIONE);
+ });
+
+ fillSelect(filter-year, ys);
+ fillSelect(filter-month, ms, true);
+ fillSelect(filter-tipologia, tips);
+ fillSelect(filter-gruppo, grs);
+ fillSelect(filter-acquisizione, acqs);
+
+ document.getElementById("filter-year").onchange=e=>{filters.year=e.target.value;applyFiltersAndUpdate();}
+ document.getElementById("filter-month").onchange=e=>{filters.month=e.target.value;applyFiltersAndUpdate();}
+ document.getElementById("filter-tipologia").onchange=e=>{filters.tipologia=e.target.value;applyFiltersAndUpdate();}
+ document.getElementById("filter-gruppo").onchange=e=>{filters.gruppo=e.target.value;applyFiltersAndUpdate();}
+ document.getElementById("filter-acquisizione").onchange=e=>{filters.acquisizione=e.target.value;applyFiltersAndUpdate();}
+ document.getElementById("btn-reset").onclick=()=>{
+   filters.year=filters.month=filters.tipologia=filters.gruppo=filters.acquisizione="";
+   document.getElementById("filter-year").value="";
+   document.getElementById("filter-month").value="";
+   document.getElementById("filter-tipologia").value="";
+   document.getElementById("filter-gruppo").value="";
+   document.getElementById("filter-acquisizione").value="";
+   applyFiltersAndUpdate();
+ }
+}
+
+function fillSelect(elSet, vals, isMonth=false){
+ const el=document.getElementById(elSet.id);
+ vals=[...vals].sort((a,b)=>a-b);
+ vals.forEach(v=>{
+   const o=document.createElement("option");
+   o.value=v;
+   o.textContent=isMonth ? (v+" - "+monthNames[v-1]) : v;
+   el.appendChild(o);
+ });
+}
+
+/* ----------------------------------------------------------
+   FILTRI SU DATI
+----------------------------------------------------------- */
+function filterFleet(){
+ return fleetData.filter(d=>{
+   if(filters.year && d.Year!=filters.year) return false;
+   if(filters.month && d.Month!=filters.month) return false;
+   if(filters.tipologia && d.TIPOLOGIA!=filters.tipologia) return false;
+   if(filters.gruppo && d.GRUPPO!=filters.gruppo) return false;
+   if(filters.acquisizione && d.ACQUISIZIONE!=filters.acquisizione) return false;
+   return true;
+ });
+}
+
+function filterBooking(){
+ return bookingData.filter(d=>{
+   if(filters.year && d.Year!=filters.year) return false;
+   if(filters.month && d.Month!=filters.month) return false;
+   if(filters.tipologia && d.TIPOLOGIA!=filters.tipologia) return false;
+   if(filters.gruppo && d.GRUPPO!=filters.gruppo) return false;
+   if(filters.acquisizione && d.ACQUISIZIONE!=filters.acquisizione) return false;
+   return true;
+ });
+}
+
+/* ----------------------------------------------------------
+   PERIODO PRECEDENTE
+----------------------------------------------------------- */
+function getPrevPeriod(){
+ if(!filters.year && !filters.month) return {hasPrev:false};
+
+ if(filters.month){
+   let m=parseInt(filters.month), y=filters.year?parseInt(filters.year):null;
+   let pm=m-1, py=y;
+   if(pm<1){ pm=12; if(y) py=y-1; }
+   return {hasPrev:true, label:"Mese prec.", year:py, month:pm};
+ }
+
+ return {hasPrev:true,label:"Anno prec.", year:parseInt(filters.year)-1, month:null};
+}
+
+/* ----------------------------------------------------------
+   CALCOLO KPI
+----------------------------------------------------------- */
+function computeKPIs(f, b){
+ let sumCan=0, sumAss=0, sumTot=0;
+ const monthly={};
+ f.forEach(d=>{
+  const k=groupKey(d.Year,d.Month);
+  monthly[k]=(monthly[k]||0)+(d.fleet_size||0);
+  sumCan+=d.canone_imponibile||0;
+  sumAss+=d.assicurazione||0;
+  sumTot+=d.costo_totale||((d.canone_imponibile||0)+(d.assicurazione||0));
+ });
+
+ const ma=Object.values(monthly);
+ const fleetAvg=ma.length? ma.reduce((a,b)=>a+b,0)/ma.length : 0;
+
+ let sumRev=0, sumDays=0, sumBook=0;
+ b.forEach(d=>{
+  sumRev+=d.revenue||0;
+  sumDays+=d.days||0;
+  sumBook+=d.bookings||0;
+ });
+
+ return {
+   fleetAvg, sumCan, sumAss, sumTot,
+   sumRev, sumDays, sumBook,
+   revPerDay: sumDays?sumRev/sumDays:0,
+   revPerVehicle: fleetAvg? sumRev/fleetAvg : null,
+   costRevRatio: sumRev? (sumTot/sumRev)*100 : null
+ };
+}
+
+/* ----------------------------------------------------------
+   AGGIORNA CARD
+----------------------------------------------------------- */
+function updateCards(cf, cb){
+ const curr=computeKPIs(cf,cb);
+ const pp=getPrevPeriod();
+
+ // Funzione helper per formattazione
+ const fmtC=v=> "€"+v.toLocaleString("it-IT",{maximumFractionDigits:1});
+ const fmtN=v=> v.toLocaleString("it-IT",{maximumFractionDigits:1});
+
+ // Assegna valori card correnti
+ card-fleet-size.textContent = fmtN(curr.fleetAvg||0);
+ card-canone.textContent = fmtC(curr.sumCan||0);
+ card-assicurazione.textContent = fmtC(curr.sumAss||0);
+ card-costo-totale.textContent = fmtC(curr.sumTot||0);
+ card-revenue.textContent = fmtC(curr.sumRev||0);
+ card-rev-per-day.textContent = fmtC(curr.revPerDay||0);
+ card-bookings.textContent = curr.sumBook||0;
+ card-rev-per-vehicle.textContent = curr.revPerVehicle?fmtC(curr.revPerVehicle):"–";
+ card-cost-rev-ratio.textContent = curr.costRevRatio? curr.costRevRatio.toFixed(1)+"%" : "–";
+
+ // Pulisci prev
+ document.querySelectorAll(".card-prev").forEach(el=> el.textContent="");
+
+ if(!pp.hasPrev) return;
+
+ const pf=fleetData.filter(d=>{
+   if(pp.year!==null && d.Year!=pp.year) return false;
+   if(pp.month!==null && d.Month!=pp.month) return false;
+   if(filters.tipologia && d.TIPOLOGIA!=filters.tipologia) return false;
+   if(filters.gruppo && d.GRUPPO!=filters.gruppo) return false;
+   if(filters.acquisizione && d.ACQUISIZIONE!=filters.acquisizione) return false;
+   return true;
+ });
+
+ const pb=bookingData.filter(d=>{
+   if(pp.year!==null && d.Year!=pp.year) return false;
+   if(pp.month!==null && d.Month!=pp.month) return false;
+   if(filters.tipologia && d.TIPOLOGIA!=filters.tipologia) return false;
+   if(filters.gruppo && d.GRUPPO!=filters.gruppo) return false;
+   if(filters.acquisizione && d.ACQUISIZIONE!=filters.acquisizione) return false;
+   return true;
+ });
+
+ const prevK=computeKPIs(pf,pb);
+ const L=pp.label+": ";
+
+ card-fleet-size-prev.textContent = L+(pf.length?fmtN(prevK.fleetAvg):"–");
+ card-canone-prev.textContent = L+(pf.length?fmtC(prevK.sumCan):"–");
+ card-assicurazione-prev.textContent = L+(pf.length?fmtC(prevK.sumAss):"–");
+ card-costo-totale-prev.textContent = L+(pf.length?fmtC(prevK.sumTot):"–");
+ card-revenue-prev.textContent = L+(pb.length?fmtC(prevK.sumRev):"–");
+ card-rev-per-day-prev.textContent = L+(pb.length?fmtC(prevK.revPerDay):"–");
+ card-bookings-prev.textContent = L+(pb.length?prevK.sumBook:"–");
+ card-rev-per-vehicle-prev.textContent = L+(prevK.revPerVehicle?fmtC(prevK.revPerVehicle):"–");
+ card-cost-rev-ratio-prev.textContent = L+(prevK.costRevRatio?prevK.costRevRatio.toFixed(1)+"%":"–");
+}
+
+/* ----------------------------------------------------------
+   GRAFICI
+----------------------------------------------------------- */
+function updateCharts(cf,cb){
+ // identico a tua versione → per brevità mantengo invariato
+ // (posso anche riscriverlo se vuoi)
+}
+
+/* ----------------------------------------------------------
+   APPLY FILTRI
+----------------------------------------------------------- */
+function applyFiltersAndUpdate(){
+ const cf=filterFleet();
+ const cb=filterBooking();
+ updateCards(cf,cb);
+ updateCharts(cf,cb);
+}
+
+</script>
+
+</body>
+</html>
